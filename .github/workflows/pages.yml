@@ -1,0 +1,47 @@
+# Tests and builds the site, then publishes it with GitHub Pages
+# (Settings > Pages > Source: GitHub Actions).
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install (postinstall copies the ffmpeg.wasm core into public/)
+        run: npm ci
+      - name: Unit tests
+        run: node test/md5.test.mjs && node test/naming.test.mjs && node test/strategy.test.mjs && node test/probe.test.mjs && node test/framecheck.test.mjs && node test/zip.test.mjs
+      - name: Build
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
