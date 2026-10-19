@@ -1,0 +1,23 @@
+{
+  "name": "mpegcd",
+  "private": true,
+  "version": "0.1.0",
+  "description": "YUV <-> lossless-compressed video, 100% in your browser (ffmpeg.wasm).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5290 --strictPort",
+    "build": "vite build",
+    "serve": "./serve.sh",
+    "preview": "vite preview --host 0.0.0.0 --port 5290 --strictPort",
+    "test": "node test/md5.test.mjs && node test/naming.test.mjs && node test/strategy.test.mjs && node test/probe.test.mjs && node test/framecheck.test.mjs && node test/zip.test.mjs && node test/roundtrip.mjs",
+    "postinstall": "node -e \"const fs=require('fs');fs.mkdirSync('public/ffmpeg',{recursive:true});fs.copyFileSync('node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.wasm','public/ffmpeg/ffmpeg-core.wasm');fs.copyFileSync('node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.js','public/ffmpeg/ffmpeg-core.js');console.log('copied ffmpeg core')\""
+  },
+  "dependencies": {
+    "@ffmpeg/core": "0.12.10",
+    "@ffmpeg/ffmpeg": "0.12.15",
+    "jszip": "3.10.1"
+  },
+  "devDependencies": {
+    "vite": "5.4.11"
+  }
+}
