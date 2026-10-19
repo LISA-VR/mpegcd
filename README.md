@@ -1,5 +1,7 @@
 # mpegcd — YUV ⇄ lossless-compressed video, in your browser
 
+**Live site: https://lisa-vr.github.io/mpegcd/**
+
 `mpegcd` is a **static website** that turns raw YUV files into the smallest
 possible **truly lossless** compressed video, and back again — **entirely on
 your own machine**. Nothing is uploaded. Your YUV data never leaves your
