@@ -354,6 +354,7 @@ zipBtn.addEventListener('click', async () => {
       lines.push(`${j.md5}  ${j.kind === 'compress' ? j.yuvName : j.outName}`);
     }
     zip.file('MD5SUMS.txt', lines.join('\n') + '\n');
+    if (done.some(j => j.kind === 'compress')) zip.file('README.txt', zipReadme(done));
     download(await zip.generateAsync({ type: 'blob', compression: 'STORE' }), 'mpegcd.zip');
   } catch (e) {
     alert('zip failed: ' + e.message);
@@ -361,6 +362,47 @@ zipBtn.addEventListener('click', async () => {
     refreshActions();
   }
 });
+
+// ---- README.txt for zips that leave the site -------------------------------
+// Whoever receives such a zip may never have seen the site, so it says where to
+// go, what is inside and how to decode (with and without the site).
+const SITE_URL = 'https://lisa-vr.github.io/mpegcd/';
+
+function zipReadme(done) {
+  const comp = done.filter(j => j.kind === 'compress');
+  const rows = comp.map(j => {
+    const g = j.geo;
+    return `  ${j.outName}\n      ${g.width}x${g.height} ${g.pixFmt}, ${g.frames} frame${g.frames > 1 ? 's' : ''}, ${j.strategy}`;
+  });
+  const plain = comp.filter(j => !/^split/i.test(j.strategy || ''));
+  const cmds = plain.map(j => `    ffmpeg -i ${j.outName} -f rawvideo -pix_fmt ${j.geo.pixFmt} ${j.yuvName}`);
+  return [
+    'mpegcd: lossless YUV archive',
+    '============================',
+    '',
+    'These files were compressed losslessly (bit-exact) with mpegcd:',
+    '',
+    '    ' + SITE_URL,
+    '',
+    'To get the YUV files back, open that page and drop this .zip on it. Everything',
+    'runs in your browser; nothing is uploaded. Each restored file is checked against',
+    'MD5SUMS.txt automatically.',
+    '',
+    'Contents',
+    ...rows,
+    '  MD5SUMS.txt',
+    '      md5 of each original YUV, in md5sum format, named after the restored file:',
+    '      `md5sum -c MD5SUMS.txt` works on the decoded files.',
+    '',
+    'Without the website',
+    ...(cmds.length ? ['  Files coded as plain FFV1 or x264 are ordinary Matroska:', ...cmds] : []),
+    ...(plain.length < comp.length ? ['  Files marked "split" keep the high and low bytes of each sample as two video', '  streams and need the website to be merged back.'] : []),
+    '',
+    'The restored .yuv files are named <name>_<w>x<h>_<pix_fmt>.yuv, which YUView',
+    'opens directly without changing the format settings.',
+    '',
+  ].join('\n');
+}
 
 // ---- sample ----------------------------------------------------------------
 (function wireDemo() {

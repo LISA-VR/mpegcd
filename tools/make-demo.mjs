@@ -112,11 +112,14 @@ const zip = new JSZip();
 for (const [n, b] of files) zip.file(n, b);
 zip.file('MD5SUMS.txt', sums.join('\n') + '\n');
 zip.file('README.txt',
-  'Real data from ULB ToysTable (Bonatto, Fachada, Lafruit), CC BY-NC-SA,\n' +
-  'doi 10.5281/zenodo.5055542. Three neighbouring cameras (plane B, y=325, x=370/404/438)\n' +
-  'are the 3 frames of each stream: 1920x1080 texture (8-bit) and DERS depth (16-bit).\n' +
-  'Nothing is resized or cropped. Drop this zip on the page to restore the YUVs\n' +
-  'and verify their MD5.\n');
+  'mpegcd: sample data, losslessly compressed\n' +
+  '==========================================\n\n' +
+  'To restore the YUV files, open  https://lisa-vr.github.io/mpegcd/  and drop this .zip on it.\n' +
+  'Everything runs in your browser; each restored file is checked against MD5SUMS.txt.\n\n' +
+  'Data: ULB ToysTable (Bonatto, Fachada, Lafruit), CC BY-NC-SA, doi 10.5281/zenodo.5055542.\n' +
+  'Three neighbouring cameras (plane B, y=325, x=370/404/438) are the 3 frames of each stream:\n' +
+  '1920x1080 Kinect texture (yuv420p) and DERS depth (yuv420p16le). Nothing is resized or cropped.\n\n' +
+  'The restored .yuv files are named <name>_<w>x<h>_<pix_fmt>.yuv, which YUView opens directly.\n');
 const out = await zip.generateAsync({ type: 'nodebuffer', compression: 'STORE' });
 mkdirSync('public/demo', { recursive: true });
 writeFileSync('public/demo/demo_pair.zip', out);
